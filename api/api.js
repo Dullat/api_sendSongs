@@ -1,15 +1,16 @@
+import { fileURLToPath } from "url"
+import path, { dirname } from "path"
 import express from "express"
 import cors from "cors"
-import path from "path"
 import fs from "fs"
 
 const app = express()
 const PORT = 3000
 
-// Enable CORS
+// alow cors
 app.use(cors())
 
-// Define your songs array (metadata only)
+// sll the songs
 const songs = [
   {
     id: 1,
@@ -41,53 +42,43 @@ const songs = [
   },
 ]
 
-// Endpoint to get metadata of all songs
+// send info about all songs
 app.get("/api/songs", (req, res) => {
   res.json(songs)
 })
 
-// Endpoint to stream audio file based on ID
+// send song based on ID
 app.get("/api/songs/:id", (req, res) => {
   const { id } = req.params
   const song = songs.find((song) => song.id === parseInt(id))
 
   if (!song) {
-    return res.status(404).json({ error: "Song not found" })
+    return res.status(404).json({ error: "SRY: song not found" })
   }
 
-  const filePath = path.join(__dirname, song.src)
+  const currentFilePath = fileURLToPath(import.meta.url)
+  const currentDir = dirname(currentFilePath)
+  const filePath = path.join(currentDir, song.src)
 
-  // Stream the file to the client
-  const stat = fs.statSync(filePath)
-  const fileSize = stat.size
-  const range = req.headers.range
+  try {
+    // read song
+    const fileData = fs.readFileSync(filePath)
 
-  if (range) {
-    const parts = range.replace(/bytes=/, "").split("-")
-    const start = parseInt(parts[0], 10)
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
-
-    const chunksize = end - start + 1
-    const file = fs.createReadStream(filePath, { start, end })
+    // set Headers
     const head = {
-      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
+      "Content-Length": fileData.length,
       "Content-Type": "audio/mpeg",
     }
 
-    res.writeHead(206, head)
-    file.pipe(res)
-  } else {
-    const head = {
-      "Content-Length": fileSize,
-      "Content-Type": "audio/mpeg",
-    }
+    // send entire song
     res.writeHead(200, head)
-    fs.createReadStream(filePath).pipe(res)
+    res.end(fileData)
+  } catch (err) {
+    console.error("Error reading file:", err)
+    res.status(500).json({ error: "Internal server error" })
   }
 })
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`)
+  console.log(`Running on http://localhost:${PORT}`)
 })
