@@ -1,12 +1,7 @@
-const Top = ({ song }) => {
-  console.log(song)
+const Top = () => {
   return (
     <header className="text-center">
-      <p className="font-semibold text-2xl">Playing Now</p>
-      <h1>
-        <span>{song.title}</span>
-      </h1>
-      <small>{song.artist}</small>
+      <div className="w-10/12 aspect-[3/3] m-auto mt-8 bg-slate-800"></div>
     </header>
   )
 }

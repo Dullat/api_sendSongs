@@ -9,6 +9,7 @@ const HomePage = () => {
   const [songs, setSongs] = useState([])
   const [loading, setLoading] = useState(true)
   const [isFristTime, setIsFristTime] = useState(true)
+  const [play, setPlay] = useState(false)
 
   useEffect(() => {
     const getSongs = async () => {
@@ -31,6 +32,7 @@ const HomePage = () => {
     const value = songs.find((song) => song.id === id)
     setSong(value)
     setIsFristTime(false)
+    setPlay(true)
   }
 
   if (isFristTime && !loading) {
@@ -43,8 +45,8 @@ const HomePage = () => {
         ""
       ) : (
         <>
-          <Top song={song} />
-          <Player id={song.id || 1} />
+          <Top />
+          <Player id={song.id || 1} songData={song} play={play} />
           <List songs={songs} currentSong={currentSong}></List>
         </>
       )}
