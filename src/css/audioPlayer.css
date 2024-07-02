@@ -1,0 +1,10 @@
+.custom-audio-player::-webkit-media-controls-play-button,
+.custom-audio-player::-webkit-media-controls-pause-button {
+  display: none !important;
+}
+
+.custom-audio-player {
+  background-color: transparent !important;
+  border: none; /* Optional: Remove border if present */
+  width: 100%; /* Adjust width as needed */
+}

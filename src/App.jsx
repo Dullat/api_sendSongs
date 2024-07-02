@@ -6,6 +6,7 @@ import {
 } from "react-router-dom"
 
 import HomePage from "./pages/HomePage.jsx"
+import MainPage from "./pages/MainPage.jsx"
 import Layout from "./layouts/Layout.jsx"
 import "./index.css"
 

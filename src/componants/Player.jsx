@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import ReactAudioPlayer from "react-audio-player"
+import "../css/audioPlayer.css"
 
-const Player = ({ id, songData }) => {
+const Player = ({ id, songData, play }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(0.5)
   const audioRef = useRef(null)
   const [songUrl, setSongUrl] = useState(null)
 
@@ -32,48 +31,14 @@ const Player = ({ id, songData }) => {
   }, [id])
 
   const togglePlay = () => {
-    if (!audioRef.current) return
+    if (!audioRef.current || !audioRef.current.audioEl.current) return
 
-    if (isPlaying) {
-      audioRef.current.pause()
+    if (audioRef.current.audioEl.current.paused) {
+      audioRef.current.audioEl.current.play()
+      setIsPlaying(true)
     } else {
-      const playPromise = audioRef.current.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true)
-          })
-          .catch((error) => {
-            console.error("Failed to play audio:", error)
-          })
-      }
-    }
-
-    setIsPlaying(!isPlaying)
-  }
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime)
-      setDuration(audioRef.current.duration)
-    }
-  }
-
-  const formatTime = (time) => {
-    if (!isNaN(time)) {
-      const minutes = Math.floor(time / 60)
-      const seconds = Math.floor(time % 60)
-      const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`
-      return `${minutes}:${formattedSeconds}`
-    }
-    return "0:00"
-  }
-
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value)
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume
-      setVolume(newVolume)
+      audioRef.current.audioEl.current.pause()
+      setIsPlaying(false)
     }
   }
 
@@ -94,44 +59,14 @@ const Player = ({ id, songData }) => {
           </div>
         </div>
       </div>
-      <div className="w-full">
-        <div className="flex justify-between items-center">
-          <span className="text-xs">{formatTime(currentTime)}</span>
-          <input
-            type="range"
-            min="0"
-            max={duration}
-            value={currentTime}
-            onChange={(e) => {
-              const newTime = parseFloat(e.target.value)
-              setCurrentTime(newTime)
-              if (audioRef.current) {
-                audioRef.current.currentTime = newTime
-              }
-            }}
-            className="w-full mx-2"
-          />
-          <span className="text-xs">{formatTime(duration)}</span>
-        </div>
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-xs">Volume</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="w-full mx-2"
-          />
-        </div>
-      </div>
-      <audio
+
+      <ReactAudioPlayer
         ref={audioRef}
         src={songUrl}
-        onTimeUpdate={handleTimeUpdate}
+        autoPlay={true}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        className="custom-audio-player"
       />
     </div>
   )
