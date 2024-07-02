@@ -5,11 +5,10 @@ import List from "../componants/List.jsx"
 import Player from "../componants/Player.jsx"
 
 const HomePage = () => {
-  const [song, setSong] = useState({})
+  const [song, setSong] = useState(1)
   const [songs, setSongs] = useState([])
   const [loading, setLoading] = useState(true)
   const [isFristTime, setIsFristTime] = useState(true)
-  const [play, setPlay] = useState(false)
 
   useEffect(() => {
     const getSongs = async () => {
@@ -31,12 +30,11 @@ const HomePage = () => {
   function currentSong(id) {
     const value = songs.find((song) => song.id === id)
     setSong(value)
-    setIsFristTime(false)
-    setPlay(true)
   }
 
-  if (isFristTime && !loading) {
+  if (isFristTime === true && !loading) {
     currentSong(1)
+    setIsFristTime(false)
   }
 
   return (
@@ -45,8 +43,8 @@ const HomePage = () => {
         ""
       ) : (
         <>
-          <Top />
-          <Player id={song.id || 1} songData={song} play={play} />
+          <Top song={song} />
+          <Player id={song.id} songs={songs} currentSong={currentSong} />
           <List songs={songs} currentSong={currentSong}></List>
         </>
       )}

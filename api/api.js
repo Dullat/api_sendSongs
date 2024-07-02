@@ -47,6 +47,37 @@ app.get("/api/songs", (req, res) => {
   res.json(songs)
 })
 
+app.get("/api/song/img/:id", (req, res) => {
+  const { id } = req.params
+  const song = songs.find((song) => song.id === parseInt(id))
+
+  if (!song) {
+    return res.status(404).json({ error: "Song not found" })
+  }
+
+  const currentFilePath = fileURLToPath(import.meta.url)
+  const currentDir = dirname(currentFilePath)
+  const imagePath = path.join(currentDir, song.img)
+
+  try {
+    // Read image file
+    const imageData = fs.readFileSync(imagePath)
+
+    // Set headers
+    const head = {
+      "Content-Length": imageData.length,
+      "Content-Type": "image/png",
+    }
+
+    // Send the image data
+    res.writeHead(200, head)
+    res.end(imageData)
+  } catch (err) {
+    console.error("Error reading image file:", err)
+    res.status(500).json({ error: "Internal server error" })
+  }
+})
+
 // send song based on ID
 app.get("/api/songs/:id", (req, res) => {
   const { id } = req.params
